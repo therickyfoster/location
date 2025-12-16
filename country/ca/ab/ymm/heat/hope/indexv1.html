@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Heat & Hope — 10 Summers, One Choice</title>
+<meta name="description" content="A playful, animated one‑page that contrasts this summer with the last ten and shows what happens if we don’t act — and how planting can flip the script."/>
+<style>
+  :root{
+    --bg: #0b1020;           /* dark indigo */
+    --fg: #e8f0ff;           /* soft ice */
+    --muted:#9fb3d9;
+    --accent:#65ffa3;        /* mint */
+    --accent-2:#ffd166;      /* honey */
+    --danger:#ff6b6b;        /* coral */
+    --card:#121735;
+    --glow: 0 0 0 rgba(0,0,0,0);
+  }
+  [data-theme="light"]{
+    --bg:#f6fbff; --fg:#0b1020; --muted:#48608e; --card:#ffffff; --glow:0 0 60px rgba(101,255,163,0.25);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color:var(--fg); background:radial-gradient(1200px 600px at 20% -10%, #23305e, transparent), var(--bg);
+    overflow-x:hidden;
+  }
+  /* Star/particle canvas behind */
+  #stars{position:fixed; inset:0; z-index:-2}
+  /* Soft gradient halo */
+  .halo{position:fixed; inset:-10vh -10vw; z-index:-1; filter:blur(60px); opacity:.5; pointer-events:none;
+    background:conic-gradient(from 110deg, #1b2a5a, #1f6feb, #65ffa3, #ffd166, #ff6b6b, #1b2a5a);
+    animation:spin 40s linear infinite}
+  @keyframes spin{to{transform:rotate(1turn)}}
+
+  header{
+    position:relative; padding: clamp(18px, 3vw, 36px);
+    display:flex; align-items:center; gap:16px; justify-content:space-between;
+  }
+  .brand{display:flex; align-items:center; gap:12px}
+  .badge{font-weight:700; letter-spacing:.4px; text-transform:uppercase; font-size:.8rem; color:var(--bg);
+    background:linear-gradient(90deg, var(--accent), var(--accent-2)); padding:6px 10px; border-radius:999px; box-shadow:var(--glow)}
+  .title{font-size:clamp(24px, 3.2vw, 40px); font-weight:900; line-height:1.05; margin:0}
+  .sub{margin:4px 0 0; color:var(--muted); font-size:clamp(12px,1.4vw,14px)}
+
+  .controls{display:flex; gap:8px; align-items:center}
+  .btn{appearance:none; border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.1));
+    color:var(--fg); padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; transition:.2s transform, .2s filter}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+
+  /* Hero section */
+  .hero{display:grid; grid-template-columns:1.1fr .9fr; gap:clamp(16px,3vw,32px); align-items:center; padding:0 clamp(18px, 3vw, 36px) clamp(12px,3vw,36px)}
+  .hero h1{font-size: clamp(28px, 6vw, 72px); margin:.1em 0 .2em; line-height:1}
+  .lede{font-size: clamp(16px, 2.1vw, 22px); color:var(--muted)}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.18)); border:1px solid rgba(255,255,255,.08);
+    border-radius:20px; padding:clamp(14px,2vw,22px); box-shadow:0 10px 40px rgba(0,0,0,.25)}
+
+  /* Tabs */
+  .tabs{display:flex; gap:8px; flex-wrap:wrap}
+  .tab{padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.08); cursor:pointer; font-weight:700; opacity:.7}
+  .tab.active{background:linear-gradient(90deg, #1f6feb22, #65ffa322); opacity:1}
+  .panels{margin-top:12px}
+  .panel{display:none}
+  .panel.active{display:block}
+
+  /* Stat chips */
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+  .chip{padding:8px 10px; border-radius:999px; border:1px dashed rgba(255,255,255,.2); font-weight:700}
+
+  /* Wildlife row */
+  .wildlife{position:relative; isolation:isolate; padding:24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px}
+  .critter{position:relative; background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:16px;
+    display:flex; align-items:center; gap:12px; overflow:hidden}
+  .critter svg{width:84px; height:84px; flex:none; animation:float 6s ease-in-out infinite}
+  .critter h3{margin:0; font-size:18px}
+  .critter p{margin:6px 0 0; color:var(--muted); font-size:14px}
+  @keyframes float{50%{transform:translateY(-6px)} 100%{transform:translateY(0)}}
+
+  /* Timeline */
+  .timeline{padding:30px clamp(18px, 3vw, 36px)}
+  .row{display:grid; grid-template-columns: 28ch 1fr; gap:18px; align-items:start; margin:16px 0}
+  .row .when{color:var(--accent-2); font-weight:900}
+  .row .what{background:var(--card); border:1px solid rgba(255,255,255,.08); padding:16px; border-radius:16px}
+
+  /* Ticker */
+  .ticker{position:sticky; bottom:0; left:0; right:0; background:linear-gradient(90deg, #1f6feb, #65ffa3, #ffd166, #ff6b6b);
+    color:#000; font-weight:800; letter-spacing:.5px; overflow:hidden}
+  .marquee{display:flex; gap:32px; white-space:nowrap; will-change:transform; animation:mar 30s linear infinite}
+  @keyframes mar{to{transform:translateX(-50%)}}
+
+  /* CTA */
+  .cta{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
+  .cta .btn.primary{background:linear-gradient(90deg, #1f6feb, #65ffa3); color:#001b2e; border:none; box-shadow:var(--glow)}
+  .cta .btn.ghost{background:transparent}
+
+  /* Accessibility: reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    .halo, .critter svg, .marquee{animation:none}
+  }
+  @media (max-width: 880px){
+    .hero{grid-template-columns:1fr}
+    .row{grid-template-columns: 1fr}
+  }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="halo" aria-hidden="true"></div>
+<header>
+  <div class="brand">
+    <div class="badge">Heat & Hope</div>
+    <div>
+      <h1 class="title">Ten Summers to Now</h1>
+      <p class="sub">A playful, data-aware scroll on heat, risk, and planting our way to continuity.</p>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn" id="themeToggle" aria-pressed="false" aria-label="Toggle theme">🌗 Theme</button>
+    <button class="btn" id="confettiBtn" aria-label="Release pollinator confetti">🧚 Pollinator Confetti</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="card">
+    <h1>This summer isn’t random — it’s the curve.
+    </h1>
+    <p class="lede">Across the last decade, summers started earlier, ran hotter, and lasted longer. Wildfire risk stacked, air quality crashed, and water stress worsened. If we don’t act, we don’t just get more of the same — we lock it in.</p>
+
+    <div class="tabs" role="tablist" aria-label="Evidence tabs">
+      <button class="tab active" role="tab" aria-selected="true" aria-controls="p1" id="t1">This Summer vs 10‑Year Trend</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p2" id="t2">If We Don’t Act</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p3" id="t3">Planting Flips the Script</button>
+    </div>
+    <div class="panels">
+      <div class="panel active" id="p1" role="tabpanel" aria-labelledby="t1">
+        <ul>
+          <li><strong>Earlier heat onset:</strong> peak heat arriving weeks sooner shifts risks into late spring.</li>
+          <li><strong>Longer hot stretch:</strong> the five‑week hottest window now stretches 8–10 weeks in many regions.</li>
+          <li><strong>Compounding smoke:</strong> hotter, drier fuels and longer burn windows amplify air‑quality crises.</li>
+        </ul>
+        <div class="chips">
+          <div class="chip">Longer Heat Season</div>
+          <div class="chip">Higher Nighttime Lows</div>
+          <div class="chip">Bigger Smoke Events</div>
+          <div class="chip">Water Stress ↑</div>
+        </div>
+      </div>
+      <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2">
+        <p>If we don’t act, we entrench the feedback loop: heat → drought → fire → smoke → health damage → lost capacity to respond. Crop losses rise, insurance collapses, and communities face rolling evacuations. The pass narrows — and then it’s gone.</p>
+        <ul>
+          <li><strong>Wildfire seasons intensify:</strong> more area burned, longer evacuations, persistent smoke.</li>
+          <li><strong>Infrastructure stress:</strong> grid strain, road buckling, rail warping, water treatment risks.</li>
+          <li><strong>Health impact:</strong> heatstroke, cardiopulmonary stress, mental‑health tolls from prolonged hazard.</li>
+        </ul>
+      </div>
+      <div class="panel" id="p3" role="tabpanel" aria-labelledby="t3">
+        <p>Trees are time machines. They cool locally, bank water in soils, anchor biodiversity, and pull carbon from air. A million seedlings today are a climate‑shield in 3–10 years and a continuity forest in 30.</p>
+        <div class="cta">
+          <button class="btn primary" id="pledge">I’ll Plant 10 Trees 🌱</button>
+          <button class="btn ghost" id="printPlan">Print a Field Plan</button>
+          <span id="pledgeCount" aria-live="polite" style="font-weight:700"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" aria-label="Cheerful wildlife crew">
+    <div class="wildlife">
+      <!-- Fox -->
+      <div class="critter" aria-label="Fox: Firewatch Scout">
+        <svg viewBox="0 0 128 128" role="img" aria-labelledby="foxTitle foxDesc">
+          <title id="foxTitle">Sunny the Fox</title>
+          <desc id="foxDesc">A happy orange fox with a wagging tail.</desc>
+          <defs>
+            <linearGradient id="foxGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop stop-color="#ffb86c" offset="0"/>
+              <stop stop-color="#ff7b54" offset="1"/>
+            </linearGradient>
+          </defs>
+          <circle cx="64" cy="64" r="60" fill="#1a2247"/>
+          <path d="M30 70 Q64 20 98 70 Q64 58 30 70Z" fill="url(#foxGrad)"/>
+          <circle cx="50" cy="70" r="14" fill="#fff"/>
+          <circle cx="78" cy="70" r="14" fill="#fff"/>
+          <circle cx="54" cy="70" r="4"/>
+          <circle cx="82" cy="70" r="4"/>
+          <path d="M64 80 q8 8 16 0" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M24 86 q20 10 40 10 q20 0 40-10" stroke="#ffd166" stroke-width="4" fill="none" opacity=".6"/>
+        </svg>
+        <div>
+          <h3>Sunny the Fox</h3>
+          <p>“I scout for sparks—plant shade, stop flames.”</p>
+        </div>
+      </div>
+      <!-- Beaver -->
+      <div class="critter" aria-label="Beaver: Water Keeper">
+        <svg viewBox="0 0 128 128" role="img" aria-labelledby="bevTitle bevDesc">
+          <title id="bevTitle">Bev the Beaver</title>
+          <desc id="bevDesc">A smiling beaver with a big tail.</desc>
+          <circle cx="64" cy="64" r="60" fill="#1a2247"/>
+          <ellipse cx="64" cy="68" rx="30" ry="22" fill="#c28b5a"/>
+          <ellipse cx="50" cy="64" rx="6" ry="8" fill="#000"/>
+          <ellipse cx="78" cy="64" rx="6" ry="8" fill="#000"/>
+          <rect x="58" y="76" width="12" height="8" fill="#fff" rx="2"/>
+          <rect x="86" y="86" width="26" height="16" fill="#6b4f3a" rx="8"/>
+          <path d="M20 98 q44 16 88 0" stroke="#65ffa3" stroke-width="4" fill="none" opacity=".6"/>
+        </svg>
+        <div>
+          <h3>Bev the Beaver</h3>
+          <p>“Wetlands are climate batteries—let’s build them.”</p>
+        </div>
+      </div>
+      <!-- Owl -->
+      <div class="critter" aria-label="Owl: Night Watch">
+        <svg viewBox="0 0 128 128" role="img" aria-labelledby="owlTitle owlDesc">
+          <title id="owlTitle">Orla the Owl</title>
+          <desc id="owlDesc">A cheerful owl with bright eyes.</desc>
+          <circle cx="64" cy="64" r="60" fill="#1a2247"/>
+          <circle cx="50" cy="64" r="12" fill="#ffd166"/>
+          <circle cx="78" cy="64" r="12" fill="#ffd166"/>
+          <circle cx="50" cy="64" r="5"/>
+          <circle cx="78" cy="64" r="5"/>
+          <path d="M34 54 q30-28 60 0" stroke="#ff6b6b" stroke-width="4" fill="none" opacity=".6"/>
+        </svg>
+        <div>
+          <h3>Orla the Owl</h3>
+          <p>“Knowledge is shade for the mind—share it.”</p>
+        </div>
+      </div>
+      <!-- Chickadee -->
+      <div class="critter" aria-label="Chickadee: Joy Carrier">
+        <svg viewBox="0 0 128 128" role="img" aria-labelledby="birdTitle birdDesc">
+          <title id="birdTitle">Chai the Chickadee</title>
+          <desc id="birdDesc">A tiny bouncing bird.</desc>
+          <circle cx="64" cy="64" r="60" fill="#1a2247"/>
+          <circle cx="64" cy="70" r="18" fill="#9fb3d9"/>
+          <circle cx="64" cy="66" r="6"/>
+          <path d="M40 90 q24-8 48 0" stroke="#65ffa3" stroke-width="4" fill="none" opacity=".6"/>
+        </svg>
+        <div>
+          <h3>Chai the Chickadee</h3>
+          <p>“Plant joy. Pollinate hope.”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="timeline" aria-label="Timeline Scroll">
+  <div class="row">
+    <div class="when">Last 10 Summers → Now</div>
+    <div class="what">Earlier heat, longer hot windows, and deeper smoke events marked a clear trend. Communities adapted on the fly, but response windows shrank. The line is moving.
+    </div>
+  </div>
+  <div class="row">
+    <div class="when">If We Don’t Act</div>
+    <div class="what">Feedbacks harden: drought dries fuels, fires grow, smoke lingers, health burdens rise, and infrastructure fails more often. We don’t just endure heat—we normalize hazard.
+    </div>
+  </div>
+  <div class="row">
+    <div class="when">If We Plant & Protect</div>
+    <div class="what">Canopy cools streets, soils hold water, wetlands buffer fire spread, biodiversity rebounds, and carbon moves back into living systems. A decade of planting shifts local climate.
+    </div>
+  </div>
+</section>
+
+<footer class="ticker" aria-label="Live climate ticker">
+  <div class="marquee" id="tickerInner" aria-live="polite">
+    <div>⚠️ Heat advisories rising • 🌫️ Smoke episodes intensifying • 💧 Water stress expanding • 🌳 Trees = local cooling + water retention + wildlife shelter</div>
+    <div>⚠️ Heat advisories rising • 🌫️ Smoke episodes intensifying • 💧 Water stress expanding • 🌳 Trees = local cooling + water retention + wildlife shelter</div>
+  </div>
+</footer>
+
+<script>
+// Theme toggle
+const root = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+if(localStorage.getItem('theme')){
+  document.body.setAttribute('data-theme', localStorage.getItem('theme'));
+}
+
+toggle.addEventListener('click', ()=>{
+  const light = document.body.getAttribute('data-theme') !== 'light';
+  document.body.setAttribute('data-theme', light ? 'light' : 'dark');
+  localStorage.setItem('theme', light ? 'light' : 'dark');
+  toggle.setAttribute('aria-pressed', String(light));
+});
+
+// Tabs logic
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    tabs.forEach(t=>{t.classList.remove('active'); t.setAttribute('aria-selected','false')});
+    panels.forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected','true');
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    panel.classList.add('active');
+  })
+});
+
+// Minimal star/particle background
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let W=canvas.width=innerWidth, H=canvas.height=innerHeight;
+let P=[];
+function reset(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; P=Array.from({length: 120}, ()=>({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.8+0.2, s:Math.random()*0.6+0.2})) }
+reset();
+addEventListener('resize', reset);
+function step(){
+  ctx.clearRect(0,0,W,H);
+  for(const p of P){
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.fill();
+    p.y += p.s; if(p.y>H){ p.y=-5; p.x=Math.random()*W }
+  }
+  requestAnimationFrame(step);
+}
+step();
+
+// Confetti (pollinators)
+const confettiBtn = document.getElementById('confettiBtn');
+confettiBtn.addEventListener('click', ()=>{
+  const emojis = ['🦋','🐝','🐞','🌸','🍃','🌼'];
+  for(let i=0;i<30;i++){
+    const span=document.createElement('span');
+    span.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    span.style.position='fixed';
+    span.style.left=(Math.random()*100)+'vw';
+    span.style.top='-10vh';
+    span.style.fontSize= (Math.random()*24+16)+'px';
+    span.style.transition='transform 2.6s linear, opacity 2.6s linear';
+    span.style.zIndex=9999; document.body.appendChild(span);
+    requestAnimationFrame(()=>{
+      span.style.transform = `translateY(${110+Math.random()*10}vh) rotate(${(Math.random()*720-360)}deg)`;
+      span.style.opacity='0.6';
+    });
+    setTimeout(()=>span.remove(), 2700);
+  }
+});
+
+// Pledge counter
+const pledgeBtn = document.getElementById('pledge');
+const pledgeOut = document.getElementById('pledgeCount');
+let count = Number(localStorage.getItem('pledge10'))||0;
+function renderPledge(){ pledgeOut.textContent = count? `🌱 Pledged so far: ${count*10} trees` : '' }
+renderPledge();
+pledgeBtn?.addEventListener('click', ()=>{ count++; localStorage.setItem('pledge10', String(count)); renderPledge(); burst(pledgeBtn) });
+
+function burst(el){
+  const rect = el.getBoundingClientRect();
+  for(let i=0;i<12;i++){
+    const dot=document.createElement('div');
+    dot.style.position='fixed';
+    dot.style.left=(rect.left+rect.width/2)+'px';
+    dot.style.top=(rect.top+rect.height/2)+'px';
+    dot.style.width=dot.style.height='6px';
+    dot.style.borderRadius='50%';
+    dot.style.background = i%2? '#65ffa3' : '#ffd166';
+    dot.style.zIndex=9999;
+    document.body.appendChild(dot);
+    const ang=Math.random()*Math.PI*2, dist= 60+Math.random()*46;
+    dot.animate([
+      {transform:'translate(0,0)', opacity:1},
+      {transform:`translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`, opacity:0}
+    ],{duration:600, easing:'cubic-bezier(.2,.6,.3,1)'}).onfinish=()=>dot.remove();
+  }
+}
+
+// Print helper
+const printBtn = document.getElementById('printPlan');
+printBtn.addEventListener('click', ()=>{
+  const was = document.title; document.title = 'Field Planting Plan — Heat & Hope'; window.print(); document.title = was;
+});
+</script>
+</body>
+</html>
